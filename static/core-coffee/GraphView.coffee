@@ -1,5 +1,5 @@
 # renders the graph using d3's force directed layout
-define [], () ->
+define ["NaiveLabelLayout", "ForceLabelLayout", "DoubleForceLabelLayout"], (NaiveLabelLayout, ForceLabelLayout, DoubleForceLabelLayout) ->
 
   class LinkFilter extends Backbone.Model
     initialize: () ->
@@ -28,7 +28,12 @@ define [], () ->
       # use identify function if not defined
       @linkFilter = new LinkFilter(this);
       @listenTo @linkFilter, "change:threshold", @update
-
+      
+      switch options["LabelPlacement"]
+        when "naive" then @labellayout = new NaiveLabelLayout()
+        when "force" then @labellayout = new ForceLabelLayout()
+        when "adapt" then @labellayout = new DoubleForceLabelLayout()
+      
     render: ->
       initialWindowWidth = $(window).width()
       initialWindowHeight = $(window).height()
@@ -139,6 +144,8 @@ define [], () ->
       # so that nodes always appear above links
       linkContainer = workspace.append("svg:g").classed("linkContainer", true)
       nodeContainer = workspace.append("svg:g").classed("nodeContainer", true)
+      labelContainer = workspace.append("svg:g").classed("labelContainer", true)
+      labelContainer.style("pointer-events", "none")
 
       # add a trigger for rightclicks of the @el
       $(@el).bind "contextmenu", (e) -> return false #disable defaultcontextmenu
@@ -163,6 +170,7 @@ define [], () ->
       filteredLinks = if @linkFilter then @linkFilter.filter(links) else links
       @force.nodes(nodes).links(filteredLinks).start()
       link = @linkSelection = d3.select(@el).select(".linkContainer").selectAll(".link").data(filteredLinks, @model.get("linkHash"))
+
       linkEnter = link.enter().append("line")
         .attr("class", "link")
         .attr("stroke", (d) => getLinkColor(d))
@@ -206,15 +214,21 @@ define [], () ->
       link.exit().remove()
       link.attr "stroke-width", (link) => 10 * (@linkStrength link)
       node = @nodeSelection = d3.select(@el).select(".nodeContainer").selectAll(".node").data(nodes, @model.get("nodeHash"))
+      label = @labelSelection = d3.select(@el).select(".labelContainer").selectAll(".label").data(nodes, @model.get("nodeHash"))
       #disable node dragging
       nodeEnter = node.enter().append("g").attr("class", "node").call(@force.drag)
       #nodeEnter = node.enter().append("g").attr("class", "node")
-      nodeEnter.append("text")
+      labelEnter = label.enter().append("g").attr("class", "label")
+      
+      labelEnter.append("text")
            .attr("dx", (d) -> 4+getSize(d))
            .attr("dy", ".35em")
            .text((d) =>
             @findText(d)
           )
+
+      # Update the label layout placing algorithm with the new labels
+      @labellayout.update(label)
 
       getColor = (node) =>
         if node.color? then node.color else "darkgrey"
@@ -262,7 +276,7 @@ define [], () ->
       node.exit().remove()
       
       @force.start()
-      @force.on "tick", ->
+      @force.on "tick", =>
         link.attr("x1", (d) ->
           d.source.x
         ).attr("y1", (d) ->
@@ -274,6 +288,7 @@ define [], () ->
         )
         node.attr "transform", (d) ->
           "translate(#{d.x},#{d.y})"
+        @labellayout.place(label)
 
       @nodeEnter = nodeEnter
       #This code can be used to pin the graph after a certain amount of time

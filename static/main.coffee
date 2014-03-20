@@ -45,7 +45,8 @@ require ["Celestrium"], (Celestrium) ->
       linkHash: (link) -> if link['_id']? then link['_id'] else 0
 
     # renders the graph using d3's force directedlayout
-    GraphView: {}
+    GraphView:
+      LabelPlacement: "adapt"   # Options are naive, force, adapt (in increasing order of complexity)
 
     # this controls edits to the Neo4j database
     "local/Neo4jDataController": {}
