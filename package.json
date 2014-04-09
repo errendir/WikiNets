@@ -11,5 +11,8 @@
         "neo4js":"0.0.3",
         "express":"2.5.2",
         "jade":"0.20.0"
+    },
+    "scripts":{
+        "start" : "server.sh"
     }
 }
