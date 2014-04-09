@@ -46,7 +46,7 @@ require ["Celestrium"], (Celestrium) ->
 
     # renders the graph using d3's force directedlayout
     GraphView:
-      LabelPlacement: "adapt"   # Options are naive, force, adapt (in increasing order of complexity)
+      LabelPlacement: "naive"   # Options are naive, force, adapt (in increasing order of complexity)
 
     # this controls edits to the Neo4j database
     "local/Neo4jDataController": {}

@@ -44,7 +44,7 @@
         }
       },
       GraphView: {
-        LabelPlacement: "adapt"
+        LabelPlacement: "naive"
       },
       "local/Neo4jDataController": {},
       "local/WikiNetsDataProvider": {},
