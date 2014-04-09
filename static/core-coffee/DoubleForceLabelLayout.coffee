@@ -40,7 +40,7 @@ define [], () ->
             "weight" : 1
           anchors.push (datum["labels"][start])    # Label piece
           d3.select(this).selectAll(".lab#{start}sep").remove()
-          #d3.select(this).append("circle").attr("r", 1).classed("lab#{start}sep", true);
+          d3.select(this).append("circle").attr("r", 1).classed("lab#{start}sep", true);
           start += 1
 
         #Construct links
