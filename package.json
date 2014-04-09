@@ -13,6 +13,6 @@
         "jade":"0.20.0"
     },
     "scripts":{
-        "start" : "server.sh"
+        "start" : "sh ./server.sh"
     }
 }
